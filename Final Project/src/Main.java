@@ -3,6 +3,7 @@ import java.io.*;
 public class Main {
     public static void main(String args[]){
         ProcessManager manager = new ProcessManager(5);
+        MemoryManager memManager = new MemoryManager();
         System.out.print("Welcome to MiniOS!\n");
         Scanner userInput = new Scanner("MiniOS> "); //User input
         String command = userInput.toString(); //Transfers user input into a string
@@ -17,9 +18,7 @@ public class Main {
             String[] commandLine = command.split(" "); //splits the commandline into an array
             param = new String[commandLine.length - 1]; //param is resized to fit the amount of params
             command = commandLine[0]; //takes the initial command
-            for(int i = 0; i<commandLine.length; i++){
-                param[i] = commandLine[i + 1]; //For loop allocates every param
-            }
+            System.arraycopy(commandLine, 1, param, 0, commandLine.length);
         }
         switch (command.toLowerCase()){
             case "create":
@@ -35,14 +34,26 @@ public class Main {
                 manager.listProcesses();
                 break;
             case "schedule":
+                manager.schedule();
                 break;
             case "alloc":
+                if (param.length == 2 && Integer.parseInt(param[1]) > 0){ //Input washing needed
+                    //if pid input doesn't exist as a PCB, print error code
+                    //Create a new process
+                    memManager.allocate(Integer.parseInt(param[0]) + 1, Integer.parseInt(param[1]));
+                }
+                else{
+                    throw new RuntimeException("Allocation missing pid or no declared size");
+                }
                 break;
             case "mem":
+                memManager.printMemory();
                 break;
             case "exit":
+                System.exit(0);
                 break;
-            default -> throw new IllegalStateException("Unexpected value: " + userInput);
+            default:
+                System.out.println("Command does not exist");
         }
     }
 }

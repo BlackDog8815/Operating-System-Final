@@ -1,25 +1,25 @@
 import java.util.*;
 public class ProcessManager {
     public int arrivalTime, burstTime, serviceTime, completionTime, responseTime;
-    Process cpu = null;
+    PCB cpu = null;
     int timer = 0;
-    ArrayList<Process> listOfProcesses;
+    //ArrayList<Process> listOfProcesses;
     ArrayList<PCB> listOfPCB;
-    ArrayList<Process> readyQueue;
-    ArrayList<Process> endProcesses;
+    ArrayList<PCB> readyQueue;
+    ArrayList<PCB> endProcesses;
     int timeQuantum;
     int counter;
     int contextSwitch;
     public ProcessManager(int timeQuantum) {
         this.timeQuantum = timeQuantum;
-        listOfProcesses = new ArrayList<>();
+        //listOfProcesses = new ArrayList<>();
         listOfPCB = new ArrayList<>();
 
     }
     public void createProcess(String name){
-        Process newProcess = new Process(arrivalTime, burstTime);
-        PCB newPCB = new PCB(listOfProcesses.size() - 1, name, PCB.State.Blocked, false);
-        listOfProcesses.add(newProcess);
+        //Process newProcess = new Process(arrivalTime, burstTime);
+        PCB newPCB = new PCB(listOfPCB.size(), name, PCB.State.Ready, false);
+        //listOfProcesses.add(newProcess);
         listOfPCB.add(newPCB);
     }
     public void listProcesses(){
@@ -29,24 +29,35 @@ public class ProcessManager {
     }
     public void schedule(){
         //Uses Round Robin scheduler
-        while (!readyQueue.isEmpty() || !listOfProcesses.isEmpty() || cpu != null) {
+        while (!readyQueue.isEmpty() || !listOfPCB.isEmpty() || cpu != null) {
             // add to readyQueue
-            for (int i = 0; i < listOfProcesses.size(); i++) {
-                if (listOfProcesses.get(i).arrivalTime == timer) {
-                    readyQueue.add(listOfProcesses.remove(i));
-                    listOfPCB.get(i).state = PCB.State.Ready;
+            for (int i = 0; i < listOfPCB.size(); i++) {
+                listOfPCB.get(i).state = PCB.State.Ready;
+                readyQueue.add(listOfPCB.get(i));
+                //if (listOfPCB.get(i).arrivalTime == timer) {
+                //    readyQueue.add(listOfProcesses.remove(i));
+                //    listOfPCB.get(i).state = PCB.State.Ready;
                 }
             }
 
             // add to cpu
             if (cpu == null) {
+                readyQueue.get(0).state = PCB.State.Running;
                 cpu = readyQueue.remove(0);
-                listOfPCB
                 //Running
             }
 
             while (cpu != null) {
-                
+                //use semaphore acquire here?
+                try{
+                    Thread.sleep(5000);
+                } catch (Exception e){
+                    System.out.println("An error has occured");
+                }
+                //use semaphore release here?
+
+
+                /*
                 if (cpu.serviceTime == 0) {
                     cpu.responseTime = timer - cpu.arrivalTime;
                 }
@@ -65,6 +76,7 @@ public class ProcessManager {
                     counter = 0;
                 }
             }
+                 */
         }
     }
 }
