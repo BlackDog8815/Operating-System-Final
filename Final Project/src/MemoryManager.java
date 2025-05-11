@@ -1,14 +1,23 @@
-import java.util.Arrays;
-
+import java.util.AbstractList;
 public class MemoryManager {
     int[] memory = new int[100];
-    public final int counter = 0;
-
+    AbstractList<Integer> pidList;
     public void allocate(int pid, int size) {
         //I'm gonna implement first fit for right now
+        /*
+        Problems to fix
+        If user input was of a pid that does not exist, must print error message.
+        If user input was of a pid that was already allocated, either error message or not a problem. Update: Fixed
+         */
         int startIndex = 0;
         int freeSize = 0;
-
+        for(int i = 0; i<=pidList.size(); i++) {//Checks if pid was already allocated.
+            if(pidList.get(i) == pid){
+                free(pid);
+                pidList.remove(i);
+            }
+        }
+        pidList.add(pid);
         for (int i = 0; i < memory.length; i++) {
             /*
             1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0
@@ -29,7 +38,7 @@ public class MemoryManager {
                 }
             }
             else{
-                System.out.println("Allocation is to big");
+                System.out.println("Allocation is too big or too small");
             }
         }
         /*
@@ -40,6 +49,7 @@ public class MemoryManager {
          */
     }
     public void free ( int pid){
+        //Should this remove the PCB from the PCB list.
         for (int i = 0; i < memory.length; i++) {
             if (memory[i] == pid) {
                 memory[i] = 0;
