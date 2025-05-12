@@ -10,8 +10,7 @@ public class ProcessManager {
     int timeQuantum;
     int counter;
     int contextSwitch;
-    public ProcessManager(int timeQuantum) {
-        this.timeQuantum = timeQuantum;
+    public ProcessManager() {
         //listOfProcesses = new ArrayList<>();
         listOfPCB = new ArrayList<>();
 
@@ -28,6 +27,7 @@ public class ProcessManager {
         }
     }
     public void schedule(){
+        int timeQuantum = 5;
         //Uses Round Robin scheduler
         while (!readyQueue.isEmpty() || !listOfPCB.isEmpty() || cpu != null) {
             // add to readyQueue
