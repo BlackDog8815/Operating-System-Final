@@ -23,7 +23,7 @@ public class ProcessManager {
     }
     public void listProcesses(){
         for(int i = 0; i<listOfPCB.size(); i++){
-            System.out.println("PID " + listOfPCB.get(i).pid + listOfPCB.get(i).name + listOfPCB.get(i).state);
+            System.out.println("PID " + listOfPCB.get(i).pid + " " + listOfPCB.get(i).name + " " + listOfPCB.get(i).state);
         }
     }
     public void schedule(){

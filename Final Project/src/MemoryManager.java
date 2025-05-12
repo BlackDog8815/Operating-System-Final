@@ -1,7 +1,8 @@
-import java.util.AbstractList;
+import java.util.ArrayList;
+
 public class MemoryManager {
     int[] memory = new int[100];
-    AbstractList<Integer> pidList;
+    ArrayList<Integer> pidList;
     public void allocate(int pid, int size) {
         //I'm gonna implement first fit for right now
         /*
@@ -11,13 +12,16 @@ public class MemoryManager {
          */
         int startIndex = 0;
         int freeSize = 0;
+        /*
         for(int i = 0; i<=pidList.size(); i++) {//Checks if pid was already allocated.
             if(pidList.get(i) == pid){
                 free(pid);
                 pidList.remove(i);
             }
         }
-        pidList.add(pid);
+
+         */
+        //pidList.add(pid);
         for (int i = 0; i < memory.length; i++) {
             /*
             1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0
@@ -58,9 +62,9 @@ public class MemoryManager {
     }
     public void printMemory () { //Prints out memory, every line has 20 memory slots shown
         for (int i = 0; i < memory.length; i++) {
-            System.out.println(memory[i] + " ");
-            if(i % 20 == 0){
-                System.out.println("\n");
+            System.out.print(memory[i] + " ");
+            if((i + 1) % 20 == 0){
+                System.out.print("\n");
             }
         }
     }

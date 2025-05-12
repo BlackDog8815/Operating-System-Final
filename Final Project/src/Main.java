@@ -1,6 +1,4 @@
 import java.util.*;
-import java.io.*;
-
 public class Main {
     public static void main(String args[]) {
         ProcessManager manager = new ProcessManager();
@@ -23,6 +21,7 @@ public class Main {
          */
         while (running) {
             command = userInput.nextLine().trim(); // reads the command line
+            param = new String[0];
             if (command.contains(" ")) { // checks if a space exists for commands with parameters
                 String[] commandLine = command.split(" "); // splits the commandline into an array
                 param = new String[commandLine.length - 1]; // param is resized to fit the amount of params
@@ -51,6 +50,7 @@ public class Main {
                         }
                         // Create a new process
                         manager.createProcess(param[0]);
+
                     } else if (param.length > 1) {
                         // if more than one parameter is given, show usage
                         System.out.println("Too Many Parameters. "+usage);
