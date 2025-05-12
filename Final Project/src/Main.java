@@ -22,7 +22,7 @@ public class Main {
          * 
          */
         while (running) {
-            command = userInput.nextLine(); // reads the command line
+            command = userInput.nextLine().trim(); // reads the command line
             if (command.contains(" ")) { // checks if a space exists for commands with parameters
                 String[] commandLine = command.split(" "); // splits the commandline into an array
                 param = new String[commandLine.length - 1]; // param is resized to fit the amount of params
@@ -30,10 +30,15 @@ public class Main {
                 try {
                     System.arraycopy(commandLine, 1, param, 0, commandLine.length - 1);
                 } catch (Exception e) {
-                    System.out.println("An error has occured");
+                    System.out.println("An error has occured"); //testing only, handle better
                 }
                 //System.out.println(Arrays.toString(param)); testing
             }
+            
+            if (command == ""){
+                command = "help"; // if no command is given, show help
+            }
+
             switch (command.toLowerCase()) {
                 case "create":
                     String usage = "Usage: create <process_name>";
@@ -72,6 +77,21 @@ public class Main {
                 case "exit":
                     running = false;
                     break;
+                case "-u":
+                    System.out.println("Usage: <command> [<args>]");
+                    break;
+                case "help":
+                    System.out.println("Available commands:");
+                    System.out.println("create <process_name> - Create a new process");
+                    System.out.println("ps - List all processes");
+                    System.out.println("schedule - Schedule the processes");
+                    System.out.println("alloc <pid> <size> - Allocate memory for a process");
+                    System.out.println("mem - Show memory allocation");
+                    System.out.println("exit - Exit the program");
+                    System.out.println("-u - Show usage information");
+                    System.out.println("help - Show this help message");
+                
+                    break;
                 default:
                     System.out.println("Command \"" + command.toLowerCase() + "\" does not exist");
             }
@@ -79,6 +99,7 @@ public class Main {
         }
 
         //TODO Not running / Exit code here
+        userInput.close();
         System.exit(0);
     }
 }
