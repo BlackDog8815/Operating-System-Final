@@ -51,27 +51,68 @@ public class Main {
                         }
                         // Create a new process
                         manager.createProcess(param[0]);
-                    } else {
+                    } else if (param.length > 1) {
+                        // if more than one parameter is given, show usage
+                        System.out.println("Too Many Parameters. "+usage);
+                        break;
+                    }else{
+                        // if no parameter is given, show usage
                         System.out.println("Process name missing. "+usage);
                         break;
                     }
                     break;
                 case "ps":
+                    String usagePs = "Usage: ps";
+                    if (param.length >= 1) {
+                        //if -u show usage
+                        if(param[0].equals("-u")){
+                            System.out.println(usagePs);
+                            break;
+                        }
+                        System.out.println("No parameters expected. "+usagePs);
+                        break;
+                    }
                     manager.listProcesses();
                     break;
                 case "schedule":
+                    String usageSchedule = "Usage: schedule";
+                    if (param.length == 1) {
+                        //if -u show usage
+                        if(param[0].equals("-u")){
+                            System.out.println(usageSchedule);
+                            break;
+                        }
+                        System.out.println("No parameters expected. "+usageSchedule);
+                        break;
+                    }
                     manager.schedule();
                     break;
                 case "alloc":
-                    if (param.length == 2 && Integer.parseInt(param[1]) > 0) { // Input washing needed
-                        // if pid input doesn't exist as a PCB, print error code
-                        // Create a new process
+                    String usageAlloc = "Usage: alloc <pid> <size>";
+                    if (param.length == 1) {
+                        //if -u show usage
+                        if(param[0].equals("-u")){
+                            System.out.println(usageAlloc);
+                            break;
+                        }
+                    } else if (param.length == 2 && Integer.parseInt(param[1]) > 0) { 
                         memManager.allocate(Integer.parseInt(param[0]) + 1, Integer.parseInt(param[1]));
                     } else {
-                        throw new RuntimeException("Allocation missing pid or no declared size");
+                        System.out.println("Invalid parameters. "+usageAlloc);
+                        break;
                     }
                     break;
                 case "mem":
+                    String usageMem = "Usage: mem";
+                    if (param.length == 1) {
+                        //if -u show usage
+                        if(param[0].equals("-u")){
+                            System.out.println(usageMem);
+                            break;
+                        }
+                        System.out.println("No parameters expected. "+usageMem);
+                        break;
+                    }
                     memManager.printMemory();
                     break;
                 case "exit":
