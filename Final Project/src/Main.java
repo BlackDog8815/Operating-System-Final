@@ -25,6 +25,12 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setSize(600, 400);
         window.setLayout(null);
+        //window.setForeground(new java.awt.Color(60, 60, 60));
+        //window.setBackground(new java.awt.Color(50, 50, 50));
+        //window.setTitle(title);
+        //window.setIconImage(new ImageIcon("src/icon.jpg").getImage());
+        //window.setResizable(false);
+        //window.setFont(new java.awt.Font("Monospaced", 0, 12));
         window.setVisible(true);
 
         PrintStream originalOut = System.out;
@@ -32,6 +38,7 @@ public class Main {
             @Override
             public void write(int b) throws IOException {
                 commandOutput.append(String.valueOf((char) b));
+                originalOut.write(b);
             }
         }));
 
@@ -58,7 +65,7 @@ public class Main {
         commandField.requestFocusInWindow();
 
         //End GUI
-
+        running = true;
         while (running) {
             // Dont Exit
         }
