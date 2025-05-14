@@ -12,16 +12,15 @@ public class MemoryManager {
          */
         int startIndex = 0;
         int freeSize = 0;
-        /*
-        for(int i = 0; i<=pidList.size(); i++) {//Checks if pid was already allocated.
-            if(pidList.get(i) == pid){
-                free(pid);
-                pidList.remove(i);
-            }
+        if (size <= 0) {
+            System.out.println("Invalid size");
+            return;
         }
 
-         */
-        //pidList.add(pid);
+        if (pid < 0) {
+            System.out.println("invalid PID");
+            return;
+        }
         for (int i = 0; i < memory.length; i++) {
             /*
             1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0
@@ -52,7 +51,7 @@ public class MemoryManager {
 
          */
     }
-    public void free ( int pid){
+    public void free (int pid){
         //Should this remove the PCB from the PCB list.
         for (int i = 0; i < memory.length; i++) {
             if (memory[i] == pid) {
