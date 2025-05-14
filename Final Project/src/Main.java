@@ -91,7 +91,11 @@ public class Main {
                     break;
                 }
                 manager.schedule();
+                for(int i = 0; i<manager.listOfPCB.size(); i++){
+                    memManager.free(i + 1);
+                }
                 break;
+                /*
             case "free":
                 String usageFree = "Usage: free <pid>";
                 if (param.length == 1) {
@@ -105,6 +109,7 @@ public class Main {
                     System.out.println("Too many parameters");
                     break;
                 }
+                 */
             case "alloc":
                 String usageAlloc = "Usage: alloc <pid> <size>";
                 if (param.length == 1) {

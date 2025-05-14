@@ -36,12 +36,6 @@ public class MemoryManager {
                 System.out.println("Allocation is too big or too small");
             }
         }
-        /*
-        if(freeSize < size){
-            System.out.println("Allocation is to big");
-        }
-
-         */
     }
     public void free (int pid){
         //Should this remove the PCB from the PCB list.
