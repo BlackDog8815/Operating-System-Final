@@ -1,12 +1,7 @@
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-
 
 public class Main {
     private static boolean running = false;
