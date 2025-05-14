@@ -1,70 +1,23 @@
-import java.util.*;
-import java.io.*;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 
 public class Main {
     private static boolean running = false;
+    private static String title = "MiniOS";
+    private static String version = "v0.1";
+    private static String author = "";
+    private static String longTitle = "MiniOS " + version + " by " + author;
     public static void main(String args[]) {
         ProcessManager manager = new ProcessManager();
         MemoryManager memManager = new MemoryManager();
-
-        // 
-        JFrame window = new JFrame("MiniOS");
-        JButton sendCommand = new JButton("<");
-        sendCommand.setBounds(520, 320, 50, 30);
-        JTextField commandField = new JTextField(20);
-        commandField.setBounds(10, 320, 500, 30);
-        JTextArea commandOutput = new JTextArea(20, 50);
-        commandOutput.setEditable(false);
-        JScrollPane scroll = new JScrollPane(commandOutput);
-        scroll.setBounds(10, 10, 560, 300);
-        window.add(sendCommand);
-        window.add(commandField);
-        window.add(scroll);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(600, 400);
-        window.setLayout(null);
-        //window.setForeground(new java.awt.Color(60, 60, 60));
-        //window.setBackground(new java.awt.Color(50, 50, 50));
-        //window.setTitle(title);
-        //window.setIconImage(new ImageIcon("src/icon.jpg").getImage());
-        //window.setResizable(false);
-        //window.setFont(new java.awt.Font("Monospaced", 0, 12));
-        window.setVisible(true);
-
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                commandOutput.append(String.valueOf((char) b));
-                originalOut.write(b);
-            }
-        }));
-
-        commandField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String command = commandField.getText();
-                commandOutput.append(command + "\n");
-                commandField.setText("");
-                run(command, manager, memManager); // Call the run method with the command
-            }
-        });
-
-        sendCommand.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String command = commandField.getText();
-                commandOutput.append(command + "\n");
-                commandField.setText("");
-                run(command, manager, memManager); // Call the run method with the command
-            }
-        });
-
-        commandField.requestFocusInWindow();
-
-        //End GUI
+        new GUI(title, longTitle, manager, memManager);
         running = true;
         while (running) {
             // Dont Exit
@@ -75,10 +28,11 @@ public class Main {
     public static void run(String command, ProcessManager manager, MemoryManager memManager) {
         
         String[] param = new String[0]; // param initialized outside so it can be used within switches
-        System.out.print("Welcome to MiniOS!\n");
-        System.out.print("MiniOS> ");
         running = true; 
 
+                if (command.equals("")  || command == null|| command.equals(" ")) { // checks if the command is empty or null
+            command = "help"; // if no command is given, show help
+        }
         param = new String[0];
         if (command.contains(" ")) { // checks if a space exists for commands with parameters
             String[] commandLine = command.split(" "); // splits the commandline into an array
@@ -92,9 +46,7 @@ public class Main {
             // System.out.println(Arrays.toString(param)); testing
         }
 
-        if (command == "") {
-            command = "help"; // if no command is given, show help
-        }
+
 
         switch (command.toLowerCase()) {
             case "create":
@@ -177,10 +129,10 @@ public class Main {
                 running = false;
                 break;
             case "-u":
-                System.out.println("Usage: <command> [<args>]");
+                System.out.println("\nUsage: <command> [<args>]");
                 break;
             case "help":
-                System.out.println("Available commands:");
+                System.out.println("\nAvailable commands:");
                 System.out.println("create <process_name> - Create a new process");
                 System.out.println("ps - List all processes");
                 System.out.println("schedule - Schedule the processes");
@@ -189,11 +141,119 @@ public class Main {
                 System.out.println("exit - Exit the program");
                 System.out.println("-u - Show usage information");
                 System.out.println("help - Show this help message");
-
+                break;
+                
+            case "clear":
+                // clear the GUI console
+                GUI.clearConsole(title);
                 break;
             default:
                 System.out.println("Command \"" + command.toLowerCase() + "\" does not exist");
         }
-        System.out.print("MiniOS> "); // Prints out the prompt
+        System.out.print(title+"> ");
     }
+    static class TriangleButton extends JButton {
+        public TriangleButton() {
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+        }
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Paint background
+            if (getModel().isPressed()) {
+                g2.setColor(new Color(35, 35, 35));
+            } else if (getModel().isRollover()) {
+                g2.setColor(new Color(55, 55, 55));
+            } else {
+                g2.setColor(getBackground());
+            }
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Paint triangle (pointing right)
+            g2.setColor(getForeground());
+            int[] xPoints = {getWidth()/2 - 5, getWidth()/2 + 5, getWidth()/2 - 5};
+            int[] yPoints = {getHeight()/2 - 5, getHeight()/2, getHeight()/2 + 5};
+            g2.fillPolygon(xPoints, yPoints, 3);
+            
+            g2.dispose();
+        }
+    }
+    
+    // Custom slim rounded scrollbar UI
+    static class SlimRoundedScrollBarUI extends BasicScrollBarUI {
+        private final int THUMB_SIZE = 8;
+        private final int THUMB_RADIUS = 4;
+        
+        @Override
+        protected void configureScrollBarColors() {
+            this.thumbColor = new Color(80, 80, 80);
+            this.trackColor = new Color(35, 35, 35);
+        }
+        
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
+        
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
+        
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(0, 0));
+            button.setMinimumSize(new Dimension(0, 0));
+            button.setMaximumSize(new Dimension(0, 0));
+            return button;
+        }
+        
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            if (thumbBounds.isEmpty() || !scrollbar.isEnabled()) {
+                return;
+            }
+            
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Set the thumb color
+            Color thumbColor = isDragging ? new Color(100, 100, 100) : this.thumbColor;
+            g2.setColor(thumbColor);
+            
+            // Create a rounded rectangle for the thumb
+            if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
+                // For vertical scrollbar
+                int width = THUMB_SIZE;
+                int x = thumbBounds.x + (thumbBounds.width - width) / 2;
+                RoundRectangle2D roundRect = new RoundRectangle2D.Float(
+                    x, thumbBounds.y, width, thumbBounds.height, THUMB_RADIUS, THUMB_RADIUS
+                );
+                g2.fill(roundRect);
+            } else {
+                // For horizontal scrollbar
+                int height = THUMB_SIZE;
+                int y = thumbBounds.y + (thumbBounds.height - height) / 2;
+                RoundRectangle2D roundRect = new RoundRectangle2D.Float(
+                    thumbBounds.x, y, thumbBounds.width, height, THUMB_RADIUS, THUMB_RADIUS
+                );
+                g2.fill(roundRect);
+            }
+            
+            g2.dispose();
+        }
+        
+        @Override
+        protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(trackColor);
+            g2.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
+            g2.dispose();
+        }
+    }
+
 }
