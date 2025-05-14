@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class MemoryManager {
     int[] memory = new int[100];
-    ArrayList<Integer> pidList;
+    ArrayList<Integer> pidList = new ArrayList<>();
     public void allocate(int pid, int size) {
         //I'm gonna implement first fit for right now
         /*
@@ -12,15 +12,6 @@ public class MemoryManager {
          */
         int startIndex = 0;
         int freeSize = 0;
-        if (size <= 0) {
-            System.out.println("Invalid size");
-            return;
-        }
-
-        if (pid < 0) {
-            System.out.println("invalid PID");
-            return;
-        }
         for (int i = 0; i < memory.length; i++) {
             /*
             1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0
@@ -38,6 +29,7 @@ public class MemoryManager {
                         memory[startIndex] = pid;
                         startIndex++;
                     }
+                    break;
                 }
             }
             else{

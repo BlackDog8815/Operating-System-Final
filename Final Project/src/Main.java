@@ -10,9 +10,9 @@ public class Main {
     private static String author = "";
     private static String longTitle = "MiniOS " + version + " by " + author;
     public static void main(String args[]) {
-        ProcessManager manager = new ProcessManager();
+        ProcessManager procManager = new ProcessManager();
         MemoryManager memManager = new MemoryManager();
-        new GUI(title, longTitle, manager, memManager);
+        new GUI(title, longTitle, procManager, memManager);
         running = true;
         while (running) {
             // Dont Exit
@@ -22,13 +22,13 @@ public class Main {
 
     public static void run(String command, ProcessManager manager, MemoryManager memManager) {
         
-        String[] param = new String[0]; // param initialized outside so it can be used within switches
+        //String[] param = new String[0]; // param initialized outside so it can be used within switches
         running = true; 
 
                 if (command.equals("")  || command == null|| command.equals(" ")) { // checks if the command is empty or null
             command = "help"; // if no command is given, show help
         }
-        param = new String[0];
+        String[] param = new String[0];
         if (command.contains(" ")) { // checks if a space exists for commands with parameters
             String[] commandLine = command.split(" "); // splits the commandline into an array
             param = new String[commandLine.length - 1]; // param is resized to fit the amount of params
@@ -92,6 +92,19 @@ public class Main {
                 }
                 manager.schedule();
                 break;
+            case "free":
+                String usageFree = "Usage: free <pid>";
+                if (param.length == 1) {
+                    // if -u show usage
+                    if (param[0].equals("-u")) {
+                        System.out.println(usageFree);
+                        break;
+                    }
+                }
+                else{
+                    System.out.println("Too many parameters");
+                    break;
+                }
             case "alloc":
                 String usageAlloc = "Usage: alloc <pid> <size>";
                 if (param.length == 1) {
@@ -100,8 +113,33 @@ public class Main {
                         System.out.println(usageAlloc);
                         break;
                     }
-                } else if (param.length == 2 && Integer.parseInt(param[1]) > 0) {
-                    memManager.allocate(Integer.parseInt(param[0]) + 1, Integer.parseInt(param[1]));
+                }
+                else if (param.length == 2 && Integer.parseInt(param[1]) > 0) {
+                    for (int i = 0; i < manager.listOfPCB.size(); i++) {
+                        if (Integer.parseInt(param[0]) == manager.listOfPCB.get(i).getPid()) { //checks input pid to see if it exists as a process
+                            int memPID = manager.listOfPCB.get(i).getPid();
+                            int size = Integer.parseInt(param[1]);
+                            if(memManager.pidList.isEmpty()){
+                                memManager.pidList.add(memPID);
+                                memManager.allocate(memPID + 1, size);
+                                break;
+                            }
+                            for(int j = 0; j<memManager.pidList.size(); j++){
+                                if(memPID == memManager.pidList.get(j)){
+                                    memManager.free(memPID + 1);
+                                    memManager.allocate(memPID + 1, size);
+                                    break;
+                                }
+                                else{
+                                    memManager.pidList.add(memPID);
+                                    memManager.allocate(memPID + 1, size);
+                                }
+                            }
+                        }
+                        else{
+                            System.out.println("Invalid PID");
+                        }
+                    }
                 } else {
                     System.out.println("Invalid parameters. " + usageAlloc);
                     break;

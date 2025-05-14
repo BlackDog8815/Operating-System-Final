@@ -1,7 +1,6 @@
 import java.util.*;
 public class ProcessManager {
     ArrayList<PCB> listOfPCB;
-    MemoryManager memoryManager;
     private final Random random;
     private final int minTime;
     private final int maxTime;
@@ -74,7 +73,6 @@ public class ProcessManager {
                     if (timeLeft <= 0) {
                         System.out.println("Process " + process.getPid() + " " + process.getName() + " has completed");
                         remainingTimes.set(i, 0);
-                        memoryManager.free(process.getPid());
                     } else {
                         remainingTimes.set(i, timeLeft);
                         //System.out.println("Process " + process.getPid() + " has " + timeLeft + " milliseconds left");
