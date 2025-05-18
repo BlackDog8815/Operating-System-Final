@@ -1,7 +1,7 @@
 import java.util.*;
 public class ProcessManager {
     ArrayList<PCB> listOfPCB;
-    private final Random random;
+    private final Random randomTime;
     private final int minTime;
     private final int maxTime;
     private int nextPID;
@@ -11,15 +11,15 @@ public class ProcessManager {
         listOfPCB = new ArrayList<>();
         this.nextPID = 0;
         this.minTime = 1000;
-        this.timeQuantum = 1000;
-        this.random = new Random();
         this.maxTime = 5000;
+        this.timeQuantum = 1000;
+        this.randomTime = new Random();
     }
     public void createProcess(String name){
         int pid = nextPID++;
         PCB process = new PCB(pid, name);
         listOfPCB.add(process);
-        int burstTime = minTime + random.nextInt(maxTime - minTime);
+        int burstTime = minTime + randomTime.nextInt(maxTime - minTime);
         timeList.add(burstTime);
         System.out.println("Created Process: " + process.getName() + " with PID " + process.getPid());
     }
@@ -47,11 +47,7 @@ public class ProcessManager {
             return;
         }
 
-        //List<Integer> timeRemaining = new ArrayList<>();
-
         for (int i = 0; i < readyProcesses.size(); i++) {
-            //int burstTime = minTime + random.nextInt(maxTime - minTime);
-            //timeRemaining.add(burstTime);
             PCB process = readyProcesses.get(i);
             System.out.println("Process " + process.getPid() + " " + process.getName() + " assigned run time of " + timeList.get(i) + " milliseconds");
         }
@@ -60,7 +56,11 @@ public class ProcessManager {
 
         while (!readyQueue) {
             readyQueue = true;
-
+            /*
+            Runs each process within the readyQueue at a time
+            Once each process's burst time is 0, the scheduler stops
+            Uses Round Robin scheduling, Time Quantum of 1000 millisecs or 1 second
+             */
             for (int i = 0; i < readyProcesses.size(); i++) {
                 PCB processList = readyProcesses.get(i);
                 int timeLeft = timeList.get(i);
@@ -82,15 +82,13 @@ public class ProcessManager {
                     if (timeLeft <= 0) {
                         System.out.println("Process " + processList.getPid() + " " + processList.getName() + " has completed");
                         timeList.set(i, 0);
-                    } else {
+                    }
+                    else {
                         timeList.set(i, timeLeft);
                         System.out.println("Process " + processList.getPid() + " has " + timeLeft + " milliseconds left");
                     }
-
                     processList.setState(PCB.State.Ready);
-
                 } catch (InterruptedException e) {
-                    System.err.println("Process was interrupted: " + e.getMessage());
                     Thread.currentThread().interrupt();
                 }
             }

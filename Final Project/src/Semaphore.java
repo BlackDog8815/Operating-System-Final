@@ -1,4 +1,3 @@
-
 public class Semaphore {
     private int count;
     public Semaphore(int count){
@@ -7,7 +6,7 @@ public class Semaphore {
     public synchronized void waitSem(){
         while(count <= 0){
             try {
-                wait();
+                wait();//Puts the thread to sleep
             } catch (Exception e){
                 System.out.println("An error has occured");
             }
@@ -16,6 +15,6 @@ public class Semaphore {
     }
     public synchronized void signal(){
         count++;
-        notify();
+        notify();//Wakes up the sleeping thread
     }
 }
