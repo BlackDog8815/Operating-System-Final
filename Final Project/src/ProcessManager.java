@@ -6,6 +6,7 @@ public class ProcessManager {
     private final int maxTime;
     private int nextPID;
     private final int timeQuantum;
+    List<Integer> timeList = new ArrayList<>();
     public ProcessManager() {
         listOfPCB = new ArrayList<>();
         this.nextPID = 0;
@@ -18,6 +19,8 @@ public class ProcessManager {
         int pid = nextPID++;
         PCB process = new PCB(pid, name);
         listOfPCB.add(process);
+        int burstTime = minTime + random.nextInt(maxTime - minTime);
+        timeList.add(burstTime);
         System.out.println("Created Process: " + process.getName() + " with PID " + process.getPid());
     }
     public void listProcesses(){
@@ -28,62 +31,67 @@ public class ProcessManager {
     public void schedule() {
         List<PCB> readyProcesses = new ArrayList<>();
         for (PCB process : listOfPCB) {
+            /*
+            Checking if the process is active is technically useless for this code.
+            Since we are just implementing semaphore but not actually using it, the PCB will always remain active.
+            I left it because it's older code but if you were to take this project farther, you would need to check
+            if the process is active or not.
+             */
             if (process.isActive() && process.getState() == PCB.State.Ready) {
-                readyProcesses.add(process);
+                readyProcesses.add(process); //processes that are ready and have been allocated
             }
         }
 
-        if (readyProcesses.isEmpty()) {
+        if (readyProcesses.isEmpty()) {//Probably unnecessary but I'm gonna leave it.
             System.out.println("No ready processes.");
             return;
         }
 
-        List<Integer> remainingTimes = new ArrayList<>();
+        //List<Integer> timeRemaining = new ArrayList<>();
 
         for (int i = 0; i < readyProcesses.size(); i++) {
-            int totalRunTime = minTime + random.nextInt(maxTime - minTime);
-            remainingTimes.add(totalRunTime);
-            //PCB process = readyProcesses.get(i);
-            //System.out.println(totalRunTime);
-            //System.out.println(process.getPid() + " " + process.getName() + " assigned run time of " + totalRunTime + " milliseconds");
+            //int burstTime = minTime + random.nextInt(maxTime - minTime);
+            //timeRemaining.add(burstTime);
+            PCB process = readyProcesses.get(i);
+            System.out.println("Process " + process.getPid() + " " + process.getName() + " assigned run time of " + timeList.get(i) + " milliseconds");
         }
 
-        boolean allDone = false;
+        boolean readyQueue = false;
 
-        while (!allDone) {
-            allDone = true;
+        while (!readyQueue) {
+            readyQueue = true;
 
             for (int i = 0; i < readyProcesses.size(); i++) {
-                PCB process = readyProcesses.get(i);
-                int timeLeft = remainingTimes.get(i);
+                PCB processList = readyProcesses.get(i);
+                int timeLeft = timeList.get(i);
 
-                if (timeLeft <= 0) {continue;}
-
-                allDone = false;
+                if (timeLeft <= 0) {
+                    continue;
+                }
+                readyQueue = false;
 
                 try {
-                    process.setState(PCB.State.Running);
-                    System.out.println("Running: " + process.getName());
-                    //System.out.println("Process " + process.getPid() + " " + process.getName() + " is running for " + Math.min(timeQuantum, timeLeft) + " milliseconds");
+                    int runTime = Math.min(timeQuantum,timeLeft);
+                    processList.setState(PCB.State.Running);
+                    System.out.println("Running: " + processList.getName());
+                    System.out.println("Process " + processList.getPid() + " " + processList.getName() + " is running for " + runTime + " milliseconds");
 
-
-                    Thread.sleep(Math.min(timeQuantum, timeLeft));
+                    Thread.sleep(runTime);
 
                     timeLeft -= timeQuantum;
                     if (timeLeft <= 0) {
-                        System.out.println("Process " + process.getPid() + " " + process.getName() + " has completed");
-                        remainingTimes.set(i, 0);
+                        System.out.println("Process " + processList.getPid() + " " + processList.getName() + " has completed");
+                        timeList.set(i, 0);
                     } else {
-                        remainingTimes.set(i, timeLeft);
-                        //System.out.println("Process " + process.getPid() + " has " + timeLeft + " milliseconds left");
+                        timeList.set(i, timeLeft);
+                        System.out.println("Process " + processList.getPid() + " has " + timeLeft + " milliseconds left");
                     }
 
-                    process.setState(PCB.State.Ready);
-                    //System.out.println("Process " + process.getPid() + " yielding CPU");
-                    //System.out.println("---");
+                    processList.setState(PCB.State.Ready);
+                    System.out.println("Process " + processList.getPid() + " yielding CPU");
 
                 } catch (InterruptedException e) {
-                    System.err.println("Process execution was interrupted: " + e.getMessage());
+                    System.err.println("Process was interrupted: " + e.getMessage());
                     Thread.currentThread().interrupt();
                 }
             }

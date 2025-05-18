@@ -5,14 +5,17 @@ public class MemoryManager {
     ArrayList<Integer> pidList = new ArrayList<>();
     public void allocate(int pid, int size) {
         //I'm gonna implement first fit for right now
-        /*
-        Problems to fix
-        If user input was of a pid that does not exist, must print error message.
-        If user input was of a pid that was already allocated, either error message or not a problem. Update: Fixed
-         */
+        boolean allocation = false;
         int startIndex = 0;
         int freeSize = 0;
+        if(size > 100 || size <= 0){
+            allocation = true;
+        }
         for (int i = 0; i < memory.length; i++) {
+            if(allocation){
+                System.out.println("Invalid size input");
+                break;
+            }
             /*
             1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0
              */
@@ -25,16 +28,18 @@ public class MemoryManager {
                     startIndex = i; //Start index grabs the index for starting when we want to allocate
                 }
                 if(freeSize == size){ //checks if current free size is big enough
+                    System.out.println("Process Allocated as " + pid + " at "  + startIndex);
                     for(int j = 0; j<size; j++){
                         memory[startIndex] = pid;
                         startIndex++;
                     }
+                    allocation = true;
                     break;
                 }
             }
-            else{
-                System.out.println("Allocation is too big or too small");
-            }
+        }
+        if(!allocation){
+            System.out.println("Allocation is too big or too small");
         }
     }
     public void free (int pid){

@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
 
 public class Main {
     private static boolean running = false;
@@ -20,15 +21,14 @@ public class Main {
         System.exit(0);
     }
 
-    public static void run(String command, ProcessManager manager, MemoryManager memManager) {
-        
-        //String[] param = new String[0]; // param initialized outside so it can be used within switches
+    public static void run(String command, ProcessManager procManager, MemoryManager memManager) {
         running = true; 
 
                 if (command.equals("")  || command == null|| command.equals(" ")) { // checks if the command is empty or null
             command = "help"; // if no command is given, show help
         }
-        String[] param = new String[0];
+        String[] param = new String[0];// param initialized outside so it can be used within switches
+        ArrayList<Integer> memoryList = memManager.pidList;
         if (command.contains(" ")) { // checks if a space exists for commands with parameters
             String[] commandLine = command.split(" "); // splits the commandline into an array
             param = new String[commandLine.length - 1]; // param is resized to fit the amount of params
@@ -54,7 +54,7 @@ public class Main {
                         break;
                     }
                     // Create a new process
-                    manager.createProcess(param[0]);
+                    procManager.createProcess(param[0]);
 
                 } else if (param.length > 1) {
                     // if more than one parameter is given, show usage
@@ -77,7 +77,11 @@ public class Main {
                     System.out.println("No parameters expected. " + usagePs);
                     break;
                 }
-                manager.listProcesses();
+                if(procManager.listOfPCB.isEmpty()){
+                    System.out.println("No processes have yet been made");
+                    break;
+                }
+                procManager.listProcesses();
                 break;
             case "schedule":
                 String usageSchedule = "Usage: schedule";
@@ -90,26 +94,18 @@ public class Main {
                     System.out.println("No parameters expected. " + usageSchedule);
                     break;
                 }
-                manager.schedule();
-                for(int i = 0; i<manager.listOfPCB.size(); i++){
-                    memManager.free(i + 1);
-                }
-                break;
-                /*
-            case "free":
-                String usageFree = "Usage: free <pid>";
-                if (param.length == 1) {
-                    // if -u show usage
-                    if (param[0].equals("-u")) {
-                        System.out.println(usageFree);
-                        break;
+                if(!memoryList.isEmpty()){
+                    procManager.schedule();
+                    for(int i = 0; i<procManager.listOfPCB.size(); i++){
+                        memManager.free(i + 1); //Deallocates memory space after schedule finishes
                     }
-                }
-                else{
-                    System.out.println("Too many parameters");
+                    memoryList.clear();
                     break;
                 }
-                 */
+                else {
+                    System.out.println("No process has been allocated");
+                    break;
+                }
             case "alloc":
                 String usageAlloc = "Usage: alloc <pid> <size>";
                 if (param.length == 1) {
@@ -119,30 +115,40 @@ public class Main {
                         break;
                     }
                 }
-                else if (param.length == 2 && Integer.parseInt(param[1]) > 0) {
-                    for (int i = 0; i < manager.listOfPCB.size(); i++) {
-                        if (Integer.parseInt(param[0]) == manager.listOfPCB.get(i).getPid()) { //checks input pid to see if it exists as a process
-                            int memPID = manager.listOfPCB.get(i).getPid();
-                            int size = Integer.parseInt(param[1]);
-                            if(memManager.pidList.isEmpty()){
-                                memManager.pidList.add(memPID);
-                                memManager.allocate(memPID + 1, size);
+                else if (param.length == 2) {
+                    int paramPid = Integer.parseInt(param[0]);
+                    int size = Integer.parseInt(param[1]);
+                    for (int i = 0; i < procManager.listOfPCB.size(); i++) {
+                        int memPID = procManager.listOfPCB.get(i).getPid();
+                        /*
+                        The code below checks to see if the user input param for pid actually exists within the set
+                        of created parameters. If it does, it gets added.
+                         */
+                        if (paramPid == memPID) { //checks input pid to see if it exists as a process
+                            memPID++;
+                            if(memoryList.isEmpty()){//If list is empty, the pcb gets automatically allocated
+                                memoryList.add(memPID);
+                                memManager.allocate(memPID, size);
                                 break;
                             }
-                            for(int j = 0; j<memManager.pidList.size(); j++){
-                                if(memPID == memManager.pidList.get(j)){
-                                    memManager.free(memPID + 1);
-                                    memManager.allocate(memPID + 1, size);
-                                    break;
-                                }
-                                else{
-                                    memManager.pidList.add(memPID);
-                                    memManager.allocate(memPID + 1, size);
+                            else if(!memoryList.isEmpty()){
+                                for(int j = 0; j<memoryList.size(); j++){
+                                    if(memPID == memoryList.get(j)){ //Checks if pid has already been allocated
+                                        memManager.free(memPID);//Removes current allocation of that pid
+                                        memManager.allocate(memPID, size);//Adds new allocation size for existing pid
+                                        break;
+                                    }
+                                    else{
+                                        memoryList.add(memPID);
+                                        memManager.allocate(memPID, size);
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        else{
-                            System.out.println("Invalid PID");
+                            else{
+                                System.out.println("Invalid PID");
+                                break;
+                            }
                         }
                     }
                 } else {
@@ -165,6 +171,7 @@ public class Main {
                 break;
             case "exit":
                 running = false;
+                System.exit(0);
                 break;
             case "-u":
                 System.out.println("\nUsage: <command> [<args>]");
