@@ -88,7 +88,6 @@ public class ProcessManager {
                     }
 
                     processList.setState(PCB.State.Ready);
-                    System.out.println("Process " + processList.getPid() + " yielding CPU");
 
                 } catch (InterruptedException e) {
                     System.err.println("Process was interrupted: " + e.getMessage());
