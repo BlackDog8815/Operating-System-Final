@@ -30,6 +30,7 @@ public class ProcessManager {
     }
     public void schedule() {
         List<PCB> readyProcesses = new ArrayList<>();
+        boolean running = false;
         for (PCB process : listOfPCB) {
             /*
             Checking if the process is active is technically useless for this code.
@@ -41,21 +42,13 @@ public class ProcessManager {
                 readyProcesses.add(process); //processes that are ready and have been allocated
             }
         }
-
-        if (readyProcesses.isEmpty()) {//Probably unnecessary but I'm gonna leave it.
-            System.out.println("No ready processes.");
-            return;
-        }
-
         for (int i = 0; i < readyProcesses.size(); i++) {
             PCB process = readyProcesses.get(i);
-            System.out.println("Process " + process.getPid() + " " + process.getName() + " assigned run time of " + timeList.get(i) + " milliseconds");
+            System.out.println("Process " + process.getPid() + " " + process.getName() + " has a burst time of " + timeList.get(i) + " milliseconds");
         }
 
-        boolean readyQueue = false;
-
-        while (!readyQueue) {
-            readyQueue = true;
+        while (!running) {
+            running = true;
             /*
             Runs each process within the readyQueue at a time
             Once each process's burst time is 0, the scheduler stops
@@ -68,12 +61,11 @@ public class ProcessManager {
                 if (timeLeft <= 0) {
                     continue;
                 }
-                readyQueue = false;
+                running = false;
 
                 try {
-                    int runTime = Math.min(timeQuantum,timeLeft);
+                    int runTime = timeLeft - timeQuantum;
                     processList.setState(PCB.State.Running);
-                    System.out.println("Running: " + processList.getName());
                     System.out.println("Process " + processList.getPid() + " " + processList.getName() + " is running for " + runTime + " milliseconds");
 
                     Thread.sleep(runTime);
