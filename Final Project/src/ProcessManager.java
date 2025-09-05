@@ -38,7 +38,7 @@ public class ProcessManager {
             I left it because it's older code but if you were to take this project farther, you would need to check
             if the process is active or not.
              */
-            if (process.isActive() && process.getState() == PCB.State.Ready) {
+            if (process.isActive() && process.getState() == PCB.State.Ready && process.allocated) {
                 readyProcesses.add(process); //processes that are ready and have been allocated
             }
         }
@@ -64,7 +64,7 @@ public class ProcessManager {
                 running = false;
 
                 try {
-                    int runTime = timeLeft - timeQuantum;
+                    int runTime = Math.min(timeQuantum, timeLeft);
                     processList.setState(PCB.State.Running);
                     System.out.println("Process " + processList.getPid() + " " + processList.getName() + " is running for " + runTime + " milliseconds");
 

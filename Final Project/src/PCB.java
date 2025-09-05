@@ -4,6 +4,7 @@ public class PCB {
     public String name;
     public State state;
     public boolean active;
+    public boolean allocated;
     public int burstTime;
 
     //public enum is used here to give state multiple a defined set of fixed constants
@@ -29,6 +30,6 @@ public class PCB {
         this.name = name;
         this.state = State.Ready;
         this.active = true;
-
+        this.allocated = false;
     }
 }

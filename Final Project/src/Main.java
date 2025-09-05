@@ -118,8 +118,13 @@ public class Main {
                 else if (param.length == 2) {
                     int paramPid = Integer.parseInt(param[0]);
                     int size = Integer.parseInt(param[1]);
-                    for (int i = 0; i < procManager.listOfPCB.size(); i++) {
-                        int memPID = procManager.listOfPCB.get(i).getPid();
+                    //boolean done = false;
+                    if(procManager.listOfPCB.isEmpty()){
+                        System.out.println("There is no processes");
+                        break;
+                    }
+                    for (int i = 0; i <= procManager.listOfPCB.size(); i++) {
+                        int memPID = procManager.listOfPCB.get(i).pid;
                         /*
                         The code below checks to see if the user input param for pid actually exists within the set
                         of created parameters. If it does, it gets added.
@@ -129,26 +134,28 @@ public class Main {
                             if(memoryList.isEmpty()){//If list is empty, the pcb gets automatically allocated
                                 memoryList.add(memPID);
                                 memManager.allocate(memPID, size);
+                                procManager.listOfPCB.get(0).allocated = true;
                                 break;
                             }
-                            else if(!memoryList.isEmpty()){
-                                for(int j = 0; j<memoryList.size(); j++){
-                                    if(memPID == memoryList.get(j)){ //Checks if pid has already been allocated
-                                        memManager.free(memPID);//Removes current allocation of that pid
-                                        memManager.allocate(memPID, size);//Adds new allocation size for existing pid
-                                        break;
-                                    }
-                                    else{
-                                        memoryList.add(memPID);
-                                        memManager.allocate(memPID, size);
-                                        break;
-                                    }
+                            /*
+                            for (int j = 0; j < procManager.listOfPCB.size();) {
+                                if (memPID == memoryList.get(j)) { //Checks if pid has already been allocated
+                                    memManager.free(memPID);//Removes current allocation of that pid
+                                    memManager.allocate(memPID, size);//Adds new allocation size for existing pid
+                                    done = true;
+                                    break;
                                 }
+                                j++;
                             }
-                            else{
-                                System.out.println("Invalid PID");
+                            if(done){
                                 break;
                             }
+
+                             */
+                            memoryList.add(memPID);
+                            memManager.allocate(memPID, size);
+                            procManager.listOfPCB.get(memoryList.size() - 1).allocated = true;
+                            break;
                         }
                     }
                 } else {

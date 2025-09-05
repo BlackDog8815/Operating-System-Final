@@ -2,7 +2,10 @@ import java.util.ArrayList;
 
 public class MemoryManager {
     int[] memory = new int[100];
-    ArrayList<Integer> pidList = new ArrayList<>();
+    ArrayList<Integer> pidList;
+    public MemoryManager(){
+        pidList = new ArrayList<>();
+    }
     public void allocate(int pid, int size) {
         //I'm gonna implement first fit for right now
         boolean allocation = false;
